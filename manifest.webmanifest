@@ -1,0 +1,17 @@
+{
+  "name": "Say It Back",
+  "short_name": "Say It Back",
+  "description": "Pick the language you speak and the one you want to learn, then say every line out loud.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#FCFAF7",
+  "theme_color": "#E2560F",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23FCFAF7'/%3E%3Cpath d='M80 256h352' stroke='%23191510' stroke-opacity='.3' stroke-width='26' stroke-linecap='round'/%3E%3Ccircle cx='192' cy='256' r='74' fill='%23E2560F'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

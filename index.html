@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Say It Back — speak English out loud</title>
-<meta name="description" content="An English speaking trainer. A voice reads a line, you read it out loud at the same time, and your microphone shows you which words came through.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Say It Back — speak a language out loud</title>
+<meta name="description" content="Pick the language you speak and the one you want to learn. A voice reads a line, you say it out loud, and your microphone lights up each word as it hears you.">
 <meta name="theme-color" content="#E2560F">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23FCFAF7'/%3E%3Cpath d='M5 16h22' stroke='%23191510' stroke-opacity='.3' stroke-width='1.8' stroke-linecap='round'/%3E%3Ccircle cx='12' cy='16' r='4.6' fill='%23E2560F'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23FCFAF7'/%3E%3Cpath d='M28 90h124' stroke='%23191510' stroke-opacity='.3' stroke-width='9' stroke-linecap='round'/%3E%3Ccircle cx='68' cy='90' r='26' fill='%23E2560F'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
@@ -16,7 +18,36 @@
 
 <div class="grain" aria-hidden="true"></div>
 
-<div class="wrap">
+<!-- ── onboarding ─────────────────────────────────── -->
+<section class="onboard" id="onboard" hidden>
+  <div class="obox">
+    <div class="brand">
+      <svg width="26" height="14" viewBox="0 0 26 14" aria-hidden="true">
+        <path d="M1 7h24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" opacity=".28"/>
+        <circle cx="9.5" cy="7" r="3.6" fill="var(--accent)"/>
+      </svg>
+      <b>Say It Back</b>
+    </div>
+
+    <h1 id="obtitle">Two questions, then you're speaking.</h1>
+    <p id="obbody">Pick the language you already speak and the one you want to practise. You can change both later.</p>
+
+    <div class="ofield">
+      <label for="obspeak" id="oblabspeak">I speak</label>
+      <select id="obspeak"></select>
+    </div>
+    <div class="ofield">
+      <label for="oblearn" id="oblablearn">I want to learn</label>
+      <select id="oblearn"></select>
+    </div>
+
+    <p class="owarn" id="obwarn" hidden>Pick two different languages.</p>
+    <button class="primary obgo" id="obgo">Start learning</button>
+  </div>
+</section>
+
+<!-- ── app ────────────────────────────────────────── -->
+<div class="wrap" id="app" hidden>
 
   <header class="top">
     <div class="brand">
@@ -26,13 +57,34 @@
       </svg>
       <b>Say It Back</b>
     </div>
+
     <div class="scores">
-      <div class="score"><em id="day">0</em><span>Day streak</span></div>
-      <div class="score"><em id="xp">0</em><span>XP</span></div>
+      <div class="goal" id="goalwrap">
+        <svg viewBox="0 0 40 40" aria-hidden="true">
+          <circle class="gtrack" cx="20" cy="20" r="16"/>
+          <circle class="gfill" id="goalring" cx="20" cy="20" r="16"/>
+        </svg>
+        <span class="gnum" id="goalnum">0</span>
+      </div>
+      <div class="score"><em id="day">0</em><span id="lbday">Day streak</span></div>
+      <div class="score"><em id="xp">0</em><span id="lbxp">XP</span></div>
     </div>
   </header>
 
-  <p class="rank" id="rank">Beginner</p>
+  <div class="langbar">
+    <span id="langpair"></span>
+    <button class="linkish" id="changelang">Change languages</button>
+  </div>
+
+  <!-- mode picker, at the top -->
+  <div class="modes" id="modes" role="group" aria-label="Mode">
+    <button class="mode on" id="m-together" data-mode="together">Together</button>
+    <button class="mode" id="m-after" data-mode="after">After</button>
+    <button class="mode" id="m-correct" data-mode="correct">Correct</button>
+  </div>
+  <p class="modehint" id="modehint"></p>
+
+  <p class="rank" id="rank"></p>
 
   <nav class="rail" id="rail" aria-label="Levels"></nav>
   <p class="levelname" id="levelname"></p>
@@ -41,42 +93,55 @@
     <div class="prog" id="prog" aria-hidden="true"></div>
 
     <div class="stage">
-      <div class="eyebrow" id="eyebrow">Press Start</div>
+      <div class="eyebrow" id="eyebrow"></div>
       <p class="line" id="line"></p>
+      <p class="translation" id="translation"></p>
       <div class="heard" id="heard" aria-live="polite"></div>
 
       <div class="meter" id="meter">
         <span class="cap" id="metercap">Listening</span>
         <span class="track"><i id="meterfill"></i></span>
       </div>
+
+      <div class="xpfloat" id="xpfloat" aria-hidden="true"></div>
+    </div>
+
+    <div class="combo" id="combo" aria-hidden="true">
+      <span class="ctxt" id="combotxt"></span>
+      <span class="ctrack"><i id="combofill"></i></span>
     </div>
 
     <div class="bar">
       <button class="primary" id="go"><span id="gotxt">Start</span></button>
-      <button id="replay" title="Hear the line again (R)">Replay</button>
-      <button id="skip" title="Skip this line (S)">Skip</button>
-      <button class="tog on" id="together" title="Read at the same time as the voice">Together</button>
-      <button class="tog on" id="micbtn" title="Score my speaking with the microphone">Mic</button>
+      <button id="replay">Replay</button>
+      <button id="skip">Skip</button>
+      <button class="tog on" id="micbtn">Mic</button>
+      <button class="tog on" id="soundbtn">Sound</button>
 
       <div class="spacer"></div>
 
       <div class="field">
-        <label for="rate">Speed</label>
+        <label for="rate" id="lbspeed">Speed</label>
         <input type="range" id="rate" min="0.5" max="1.2" step="0.05" value="0.8">
         <span class="rate" id="ratev">0.80×</span>
       </div>
       <div class="field">
-        <label for="voice">Voice</label>
+        <label for="voice" id="lbvoice">Voice</label>
         <select id="voice" aria-label="Voice"></select>
       </div>
     </div>
 
     <div class="summary" id="summary" hidden>
-      <div><b id="sumlines">0</b><span>Lines</span></div>
-      <div><b id="sumacc">0%</b><span>Accuracy</span></div>
-      <div><b id="sumxp">+0</b><span>XP earned</span></div>
+      <div><b id="sumlines">0</b><span id="lblines">Lines</span></div>
+      <div><b id="sumacc">0%</b><span id="lbacc">Accuracy</span></div>
+      <div><b id="sumxp">+0</b><span id="lbxpe">XP earned</span></div>
     </div>
   </main>
+
+  <div class="banner" id="banner" hidden>
+    <span class="bmark" aria-hidden="true"></span>
+    <span><b id="bantitle"></b><em id="bantext"></em></span>
+  </div>
 
   <div class="notice" id="notice" hidden>
     <span id="noticetxt"></span>
@@ -84,42 +149,32 @@
   </div>
 
   <div class="meta">
-    <span>Streak <b id="streak">0</b> · Best <b id="best">0</b></span>
+    <span id="metatxt"></span>
     <button class="linkish" id="reset">Reset progress</button>
   </div>
 
-  <details class="own">
+  <details class="panel" id="badgepanel">
     <summary>
       <svg width="7" height="10" viewBox="0 0 7 10" aria-hidden="true"><path d="M1.5 1 5.5 5l-4 4" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Practise your own text
+      <span id="lbbadges">Badges</span> <span class="count" id="badgecount"></span>
     </summary>
-    <textarea id="ta" spellcheck="false" aria-label="Your own text" placeholder="Paste any English text — an email, a script, something you have to say on Monday."></textarea>
+    <div class="badges" id="badges"></div>
+  </details>
+
+  <details class="panel">
+    <summary>
+      <svg width="7" height="10" viewBox="0 0 7 10" aria-hidden="true"><path d="M1.5 1 5.5 5l-4 4" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="lbown">Practise your own text</span>
+    </summary>
+    <textarea id="ta" spellcheck="false" aria-label="Your own text"></textarea>
     <button style="margin-top:12px" id="load">Practise this</button>
   </details>
 
   <section class="method">
-    <h2>How this works</h2>
-    <ol class="steps">
-      <li>
-        <strong>Read together</strong>
-        <span>The voice reads a line slowly and you read it out loud at the same time. One line at a time, never a wall of text.</span>
-      </li>
-      <li>
-        <strong>Watch the words turn green</strong>
-        <span>Your microphone follows along and lights up each word as it hears you say it. That green line is the whole point — it is proof you were understood.</span>
-      </li>
-      <li>
-        <strong>Take as long as you want</strong>
-        <span>Nothing ever cuts you off. Stumble, stop, start the line again, then press Done when you are finished. Anything the mic missed gets underlined.</span>
-      </li>
-    </ol>
-
-    <p class="warn">You already know more English than you can say. The gap between knowing and speaking only closes one way — your own voice, out loud, every day. Ten minutes daily beats two hours on a Sunday.</p>
-
-    <p class="note">
-      Wear headphones if you can. Without them the microphone hears the app's own voice as well as yours, and your score will look better than it really is.
-      Everything runs in your browser: speech is handled by the browser's own engine and your progress is saved on this device only. Works best in Chrome.
-    </p>
+    <h2 id="lbhow">How this works</h2>
+    <ol class="steps" id="steps"></ol>
+    <p class="warn" id="warntxt"></p>
+    <p class="note" id="notetxt"></p>
   </section>
 
 </div>

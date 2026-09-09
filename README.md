@@ -1,91 +1,112 @@
 # Say It Back
 
-An English speaking trainer. A voice reads a line out loud; you read it **at the
-same time**; your microphone follows along and lights up each word in green as it
-hears you say it.
+A speak-out-loud language trainer. You pick the language you already speak and
+the one you want to learn. A line appears, you say it, and your microphone lights
+up each word in green as it hears you.
 
 Built on the one idea that actually moves speaking ability: you don't think your
-way into fluency, you speak your way into it. So the app never lets you sit and
-read silently — every line asks for your voice.
+way into fluency, you speak your way into it. So the app never lets you read
+silently — every line asks for your voice.
 
-No accounts, no server, no tracking. Everything runs in the browser.
+No accounts, no server, no tracking, no build step. Everything runs in the browser.
 
-## How it works
+## Onboarding
 
-1. **Read together.** The voice reads a line at 0.8× speed and you read along out
-   loud. Each word lights up as the voice reaches it.
-2. **Watch the words turn green.** Speech recognition follows your voice and marks
-   each word it hears, in order. A small look-ahead means one fluffed word doesn't
-   derail the rest of the line.
-3. **Take as long as you want.** Nothing interrupts you. The microphone stays open
-   through your pauses — you press **Done** when *you* are finished, not on a timer.
-   Anything the mic didn't catch gets underlined.
+Two questions: **I speak** and **I want to learn**. That's it. The language you
+speak sets the interface and the translation hint under each line; the language
+you're learning is what gets spoken, heard and scored. Both are changeable at any
+time from the link in the header.
 
-Turn **Together** off if you'd rather hear the whole line first and repeat it after.
+Currently English, Spanish and French, in any combination — nine pairs.
 
-## Content
+## Three modes, chosen at the top
 
-Five levels, four passages each, twenty passages in total. Difficulty is built
-from sentence length, tense, contractions, and idiom:
+| Mode | What happens |
+|---|---|
+| **Together** | The voice reads and you read out loud at the same time. |
+| **After** | The voice reads the line first, then it's your turn. |
+| **Correct me** | You say it alone with no voice, then it reads the line back correctly so you hear the difference. |
 
-| Level | Name | What it drills |
-|---|---|---|
-| 1 | Getting started | Short present-tense lines |
-| 2 | Every day | Past tense, joining two ideas |
-| 3 | Real conversation | Contractions and phrasal verbs |
-| 4 | Work and opinion | Interviews, meetings, disagreeing politely |
-| 5 | Fluent | Long sentences, idiom, rhythm |
+In every mode the microphone stays open through your pauses and **nothing ever
+cuts you off**. You press Done when you are finished.
 
-A level unlocks when you finish every passage in the one before it. You can also
-paste your own text — an email, a script, something you have to say on Monday —
-and practise that instead.
+## Feedback
 
-All practice text is original and written for this app.
+As you speak, words turn green in order, with a one-edit tolerance and a small
+look-ahead so one fumbled word doesn't derail the rest. Accents are stripped
+before matching, because recognition is inconsistent about them — *café* matches
+*cafe*. When you finish, anything the mic didn't catch is underlined, and you get
+a percentage.
+
+A live level meter reads actual microphone amplitude, so you can see it hearing
+you before you trust the score.
 
 ## Progress
 
-XP per line (bonus for a perfect line and for streaks), a rank that climbs from
-Beginner to Natural, a **day streak** that counts consecutive days practised, and
-an end-of-passage summary with lines, accuracy and XP earned. Stored in
-`localStorage` on the device, and cleared by the "Reset progress" link.
+XP per line with bonuses for perfect lines and streaks · a rank from Beginner to
+Natural · a **daily goal ring** (20 lines) · a **day streak** counting consecutive
+days · a combo multiplier · ten badges · an end-of-passage summary.
+
+All stored in `localStorage` on the device and cleared by "Reset progress".
+
+## Content
+
+Five levels, two passages each, built from sentence length, tense, contractions
+and idiom — Getting started, Every day, Real conversation, Work and opinion,
+Fluent. Every line exists in all three languages at once, so any pair works
+without new content.
+
+A level unlocks when you finish every passage in the one before it. You can also
+paste your own text and practise that instead.
+
+All practice text is original and written for this app.
 
 ## Running it
-
-It's a static site — no build step, no dependencies.
 
 ```bash
 cd say-it-back
 python3 -m http.server 8000
-# then open http://localhost:8000
+# open http://localhost:8000
 ```
 
-Open it over `http://localhost` or an `https://` URL. Browsers only grant
-microphone access on a secure origin, so opening `index.html` as a `file://` path
-will give you the voice but not the scoring.
+Use `http://localhost` or an `https://` URL. Browsers only grant microphone
+access on a secure origin, so opening `index.html` as a `file://` path gives you
+the voice but not the scoring.
 
 ## Browser support
 
-| | Voice reads to you | Microphone scoring |
+| | Voice | Microphone scoring |
 |---|---|---|
 | Chrome (desktop) | yes | yes |
 | Edge | yes | yes |
-| Safari | yes | partial — word timing is coarse |
+| Safari | yes | partial — coarse word timing |
 | Firefox | yes | no speech recognition |
 
-The app detects what's missing and degrades: without recognition it keeps the
-read-along and the levels, and you mark each line yourself.
+The app detects what's missing and degrades: without recognition you keep the
+read-along and the levels, and mark each line yourself.
 
-**Wear headphones.** In Together mode the microphone hears the app's own voice as
-well as yours, which flatters your score. Headphones fix it completely.
+**Wear headphones.** In Together and After modes the microphone hears the app's
+own voice as well as yours, which flatters your score. Correct me has no such
+problem — nothing is playing while you speak.
+
+## Adding a language
+
+Add its code to `languages` in `assets/content.js`, add a `ui` block, and add one
+string per line. Nothing else changes — the voice and recognition pick up the new
+`speech` code automatically.
 
 ## Layout
 
 ```
-index.html          markup
-assets/styles.css   design tokens, light and dark
-assets/app.js       speech, recognition, scoring, progress
-assets/content.js   the twenty passages
+index.html              markup
+manifest.webmanifest    add-to-home-screen metadata
+assets/styles.css       design tokens, light and dark
+assets/app.js           speech, recognition, scoring, progress
+assets/content.js       languages, interface strings, passages
 ```
+
+Deliberately dependency-free and framework-free, so it wraps cleanly into a
+native shell later.
 
 ## Licence
 
